@@ -46,31 +46,31 @@ return function(form, uci)
 		end
 	end
 
-	o = s:option(Value, "limit_ingress", pkg_i18n.translate("Downstream (kbit/s)"))
+	o = s:option(Value, "limit_ingress", pkg_i18n.translate("Downstream (Mbit/s)"))
 	o:depends(limit, true)
-	o.default = uci:get("simple-tc", "mesh_vpn", "limit_ingress")
+	o.default = uci:get("simple-tc", "mesh_vpn", "limit_ingress") / 1024
 	if has_tunneldigger then
 		-- Check if limit_bw_down exists. If not, take the value from limit_ingress
 		local limit_bw_down = uci:get("tunneldigger", "mesh_vpn", "limit_bw_down")
 		if limit_bw_down ~= nil then
-			o.default = limit_bw_down
+			o.default = limit_bw_down / 1024
 		end
 	end
 	o.datatype = "uinteger"
 	function o:write(data)
 		if has_tunneldigger then
-			uci:set("tunneldigger", "mesh_vpn", "limit_bw_down", data)
+			uci:set("tunneldigger", "mesh_vpn", "limit_bw_down", data * 1024)
 		else
-			uci:set("simple-tc", "mesh_vpn", "limit_ingress", data)
+			uci:set("simple-tc", "mesh_vpn", "limit_ingress", data * 1024)
 		end
 	end
 
-	o = s:option(Value, "limit_egress", pkg_i18n.translate("Upstream (kbit/s)"))
+	o = s:option(Value, "limit_egress", pkg_i18n.translate("Upstream (Mbit/s)"))
 	o:depends(limit, true)
-	o.default = uci:get("simple-tc", "mesh_vpn", "limit_egress")
+	o.default = uci:get("simple-tc", "mesh_vpn", "limit_egress") / 1024
 	o.datatype = "uinteger"
 	function o:write(data)
-		uci:set("simple-tc", "mesh_vpn", "limit_egress", data)
+		uci:set("simple-tc", "mesh_vpn", "limit_egress", data * 1024)
 	end
 
 	return {'fastd', 'tunneldigger', 'simple-tc'}
